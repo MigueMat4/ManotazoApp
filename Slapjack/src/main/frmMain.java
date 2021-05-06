@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -30,6 +31,7 @@ public class frmMain extends javax.swing.JFrame {
     private Jugador player3;
     String[] columnNames = {"Puesto", "Jugador", "Tiempo"};
     DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+    private static Semaphore semaforo = new Semaphore(1, true); 
 
     /**
      * Creates new form frmMain
@@ -41,7 +43,7 @@ public class frmMain extends javax.swing.JFrame {
         generador = new Uno();
         player1 = new Jugador(1);
         player2 = new Jugador(2);
-        player3 = new Jugador(3);
+        player3 = new Jugador(3);       
     }
     
     public class Jugador extends Thread {
@@ -66,24 +68,29 @@ public class frmMain extends javax.swing.JFrame {
             }
         }
         
-        @Override
+       @Override
         public void run(){
             System.out.println("Jugador " + this.numero + " listo para jugar");
             System.out.println("Jugador " + this.numero + " está atento al mazo");
             while(!intento) {
                 if (generador.getNumeroCarta() == 5) {
-                    manotazo();
-                    System.out.println("Jugador " + this.numero + " entrando a la región crítica");
-                    ordenJugadores[contadorJugadores] = "Jugador " + String.valueOf(numero);
-                    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    Date date = new Date();
-                    ordenTiempos[contadorJugadores] = dateFormat.format(date);
-                    ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores+1) + " lugar";
-                    contadorJugadores++;
-                    System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
-                    intento = true;
-                    System.out.println("Jugador " + this.numero + " esperando resultados");
-                }
+                    try {
+                        manotazo();
+                        semaforo.acquire(); // entrando a la region
+                        System.out.println("Jugador " + this.numero + " entrando a la región crítica");
+                        ordenJugadores[contadorJugadores] = "Jugador " + String.valueOf(numero);
+                        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                        Date date = new Date();
+                        ordenTiempos[contadorJugadores] = dateFormat.format(date);
+                        ordenLugares[contadorJugadores] = String.valueOf(contadorJugadores+1) + " lugar";
+                        contadorJugadores++;
+                        System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
+                        intento = true;
+                        System.out.println("Jugador " + this.numero + " esperando resultados");
+                        semaforo.release(); // saliendo de la región crítica
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+                    }              }
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException ex) {
@@ -91,7 +98,7 @@ public class frmMain extends javax.swing.JFrame {
                 }
             }
         }
-        
+  
         public void manotazo() {
             Image img = new ImageIcon(this.getClass().getResource("/img/P"+String.valueOf(numero)+"-playing.png")).getImage();
             img = img.getScaledInstance(140, 140,  java.awt.Image.SCALE_SMOOTH);
@@ -104,7 +111,7 @@ public class frmMain extends javax.swing.JFrame {
         }
     }
     
-    public class Uno {
+    public class Uno extends Thread{
         private int numeroCarta;
         
         public Uno(){
@@ -122,7 +129,9 @@ public class frmMain extends javax.swing.JFrame {
             model = new DefaultTableModel(columnNames, 0);
         }
         
-        public void comenzar_juego(){
+        //public void comenzar_juego(){//aqui cambio la funcion ya que sería la que inicia
+        @Override
+        public void run(){
             System.out.println("--------------INICIO------------------------");
             System.out.println("Preparando el juego");
             System.out.println("Barajeando...");
@@ -271,9 +280,14 @@ public class frmMain extends javax.swing.JFrame {
 
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
         generador = new Uno();
-        generador.comenzar_juego();
+        generador.start();
+        player1 = new Jugador(1);
         player1.start();
+        player2 = new Jugador(2);
         player2.start();
+        player3 = new Jugador(3);  
+        
+        
         player3.start();
         btnJugar.setEnabled(false);
     }//GEN-LAST:event_btnJugarActionPerformed
