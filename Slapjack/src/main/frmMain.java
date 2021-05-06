@@ -41,7 +41,7 @@ public class frmMain extends javax.swing.JFrame {
         generador = new Uno();
         player1 = new Jugador(1);
         player2 = new Jugador(2);
-        player3 = new Jugador(3);
+        player3 = new Jugador(3);       
     }
     
     public class Jugador extends Thread {
@@ -104,7 +104,7 @@ public class frmMain extends javax.swing.JFrame {
         }
     }
     
-    public class Uno {
+    public class Uno extends Thread{
         private int numeroCarta;
         
         public Uno(){
@@ -122,7 +122,9 @@ public class frmMain extends javax.swing.JFrame {
             model = new DefaultTableModel(columnNames, 0);
         }
         
-        public void comenzar_juego(){
+        //public void comenzar_juego(){//aqui cambio la funcion ya que sería la que inicia
+        @Override
+        public void run(){
             System.out.println("--------------INICIO------------------------");
             System.out.println("Preparando el juego");
             System.out.println("Barajeando...");
@@ -271,7 +273,7 @@ public class frmMain extends javax.swing.JFrame {
 
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
         generador = new Uno();
-        generador.comenzar_juego();
+        generador.start();
         player1.start();
         player2.start();
         player3.start();
