@@ -87,7 +87,7 @@ public class frmMain extends javax.swing.JFrame {
                         System.out.println("Jugador " + this.numero + " saliendo de la región crítica");
                         intento = true;
                         System.out.println("Jugador " + this.numero + " esperando resultados");
-//                        semaforo.release(); // saliendo de la región crítica
+                        semaforo.release(); // saliendo de la región crítica
                     } catch (InterruptedException ex) {
                         Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                     }              }
@@ -96,7 +96,6 @@ public class frmMain extends javax.swing.JFrame {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                semaforo.release(); // saliendo de la región crítica
             }
         }
   
