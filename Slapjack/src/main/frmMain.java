@@ -281,8 +281,13 @@ public class frmMain extends javax.swing.JFrame {
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
         generador = new Uno();
         generador.start();
+        player1 = new Jugador(1);
         player1.start();
+        player2 = new Jugador(2);
         player2.start();
+        player3 = new Jugador(3);  
+        
+        
         player3.start();
         btnJugar.setEnabled(false);
     }//GEN-LAST:event_btnJugarActionPerformed
